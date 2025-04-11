@@ -10,7 +10,9 @@ module.exports = {
             let authorizedtoken = req.headers.authorization;
             if (!authorizedtoken.startsWith("Bearer")) {
                 token = authorizedtoken.split(" ")[1];
-            } 
+            } else {
+                token = authorizedtoken; // Trường hợp token không có "Bearer" phía trước
+            }
         }
         if (!token) {
             next(new Error("ban chua dang nhap"));
