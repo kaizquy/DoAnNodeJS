@@ -1,81 +1,86 @@
-let userSchema = require('../schemas/user')
-let roleSchema = require('../schemas/role')
-let bcrypt = require('bcrypt')
+const userSchema = require('../schemas/user');
+const roleSchema = require('../schemas/role');
+const bcrypt = require('bcrypt');
+
 module.exports = {
   GetAllUser: async function () {
-    return await userSchema.find({}).populate('role')
+    return await userSchema.find({}).populate('role');
   },
+
   GetUserByID: async function (id) {
-    return await userSchema.findById(id).populate('role')
+    return await userSchema.findById(id).populate('role');
   },
+
   GetUserByEmail: async function (email) {
-    return await userSchema.findOne({
-      email:email
-    }).populate('role')
+    return await userSchema.findOne({ email }).populate('role');
   },
+
   GetUserByToken: async function (token) {
-    return await userSchema.findOne({
-      resetPasswordToken:token
-    }).populate('role')
+    return await userSchema.findOne({ resetPasswordToken: token }).populate('role');
   },
+
   CreateAnUser: async function (username, password, email, role) {
     try {
-      let roleObj = await roleSchema.findOne({
-        name: role
-      })
-      if (roleObj) {
-        let newUser = new userSchema({
-          username: username,
-          password: password,
-          email: email,
-          role: roleObj._id
-        })
-        return await newUser.save();
-      } else {
-        throw new Error('role khong ton tai')
+      const roleObj = await roleSchema.findOne({ name: role });
+      if (!roleObj) {
+        throw new Error('Role không tồn tại');
       }
+
+      // ✅ Mã hóa mật khẩu trước khi lưu
+      const hashedPassword = await bcrypt.hash(password, 10);
+
+      const newUser = new userSchema({
+        username,
+        password: hashedPassword,
+        email,
+        role: roleObj._id
+      });
+
+      return await newUser.save();
     } catch (error) {
-      throw new Error(error.message)
+      throw new Error(error.message);
     }
   },
+
   UpdateAnUser: async function (id, body) {
-    let allowField = ["password", "email", "imgURL"];
-    let getUser = await userSchema.findById(id);
+    const allowField = ["password", "email", "imgURL"];
+    const getUser = await userSchema.findById(id);
+
     for (const key of Object.keys(body)) {
       if (allowField.includes(key)) {
-        getUser[key] = body[key]
+        getUser[key] = body[key];
       }
     }
+
     return await getUser.save();
   },
+
   DeleteAnUser: async function (id) {
-    return await userSchema.findByIdAndUpdate(id, { status: false }
-      , {
-        new: true
-      });
+    return await userSchema.findByIdAndUpdate(id, { status: false }, { new: true });
   },
+
   CheckLogin: async function (username, password) {
-    let user = await userSchema.findOne({
-      username: username
-    });
+    const user = await userSchema.findOne({ username });
     if (!user) {
-      throw new Error("username hoac password khong dung")
-    } else {
-      if (bcrypt.compareSync(password, user.password)) {
-        return user._id
-      } else {
-        throw new Error("username hoac password khong dung")
-      }
+      throw new Error("Username hoặc password không đúng");
     }
+
+    const isMatch = await bcrypt.compare(password, user.password);
+    if (!isMatch) {
+      throw new Error("Username hoặc password không đúng");
+    }
+
+    return user._id;
   },
+
   Change_Password: async function (user, oldpassword, newpassword) {
-    if (bcrypt.compareSync(oldpassword, user.password)) {
-        //doit pass
-        user.password = newpassword;
-        await user.save();
+    const isMatch = await bcrypt.compare(oldpassword, user.password);
+    if (!isMatch) {
+      throw new Error("Mật khẩu cũ không đúng");
     }
-    else{
-      throw new Error("oldpassword khong dung")
-    }
+
+    const hashedNewPassword = await bcrypt.hash(newpassword, 10);
+    user.password = hashedNewPassword;
+    await user.save();
   }
-}
+};

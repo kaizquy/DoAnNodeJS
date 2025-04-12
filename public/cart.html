@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Giỏ hàng - Car Dealership</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <style>
+    /* CSS riêng cho trang giỏ hàng */
+    .cart-container {
+      max-width: 1200px;
+      margin: 2rem auto;
+      padding: 1rem;
+    }
+    
+    .cart-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1.5rem;
+      border-bottom: 1px solid #eee;
+      padding-bottom: 1rem;
+    }
+    
+    .cart-title {
+      font-size: 1.8rem;
+      color: #2c3e50;
+    }
+    
+    .cart-content {
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      gap: 2rem;
+    }
+    
+    .cart-items {
+      background: white;
+      border-radius: 8px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.05);
+      padding: 1.5rem;
+    }
+    
+    .cart-item {
+      display: grid;
+      grid-template-columns: 100px 1fr auto;
+      gap: 1.5rem;
+      padding: 1.5rem 0;
+      border-bottom: 1px solid #f5f5f5;
+    }
+    
+    .cart-item:last-child {
+      border-bottom: none;
+    }
+    
+    .cart-item-img {
+      width: 100px;
+      height: 70px;
+      object-fit: cover;
+      border-radius: 4px;
+    }
+    
+    .cart-item-details {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+    
+    .cart-item-title {
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+    }
+    
+    .cart-item-price {
+      color: #e74c3c;
+      font-weight: bold;
+    }
+    
+    .cart-item-actions {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      justify-content: space-between;
+    }
+    
+    .quantity-control {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    
+    .quantity-btn {
+      width: 30px;
+      height: 30px;
+      border: 1px solid #ddd;
+      background: #f9f9f9;
+      cursor: pointer;
+      border-radius: 4px;
+    }
+    
+    .quantity-input {
+      width: 50px;
+      text-align: center;
+      border: 1px solid #ddd;
+      padding: 0.3rem;
+      border-radius: 4px;
+    }
+    
+    .remove-btn {
+      background: none;
+      border: none;
+      color: #e74c3c;
+      cursor: pointer;
+      font-size: 0.9rem;
+    }
+    
+    .cart-summary {
+      background: white;
+      border-radius: 8px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.05);
+      padding: 1.5rem;
+      align-self: start;
+      position: sticky;
+      top: 1rem;
+    }
+    
+    .summary-title {
+      font-size: 1.2rem;
+      margin-bottom: 1.5rem;
+      padding-bottom: 1rem;
+      border-bottom: 1px solid #eee;
+    }
+    
+    .summary-row {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 1rem;
+    }
+    
+    .summary-total {
+      font-weight: bold;
+      font-size: 1.2rem;
+      border-top: 1px solid #eee;
+      padding-top: 1rem;
+      margin-top: 1rem;
+    }
+    
+    .checkout-btn {
+      width: 100%;
+      padding: 1rem;
+      background-color: #2ecc71;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      font-size: 1rem;
+      cursor: pointer;
+      margin-top: 1.5rem;
+      transition: background-color 0.3s;
+    }
+    
+    .checkout-btn:hover {
+      background-color: #27ae60;
+    }
+    
+    .empty-cart {
+      text-align: center;
+      padding: 3rem 0;
+    }
+    
+    .empty-cart-icon {
+      font-size: 3rem;
+      color: #ddd;
+      margin-bottom: 1rem;
+    }
+    
+    .back-to-shop {
+      display: inline-block;
+      margin-top: 1rem;
+      color: #3498db;
+      text-decoration: none;
+    }
+    
+    /* Responsive */
+    @media (max-width: 768px) {
+      .cart-content {
+        grid-template-columns: 1fr;
+      }
+      
+      .cart-item {
+        grid-template-columns: 80px 1fr;
+      }
+      
+      .cart-item-actions {
+        grid-column: span 2;
+        flex-direction: row;
+        justify-content: space-between;
+        margin-top: 1rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="container">
+      <a href="/" class="logo">
+        <h1>Car Dealership</h1>
+      </a>
+      <nav>
+        <a href="/cart.html" class="cart-link">
+          <span>Giỏ hàng</span>
+          <span class="cart-count" id="headerCartCount">0</span>
+        </a>
+        <div class="auth-section" id="authSection"></div>
+      </nav>
+    </div>
+  </header>
+
+  <main class="container">
+    <div class="cart-container">
+      <div class="cart-header">
+        <h2 class="cart-title">Giỏ hàng của bạn</h2>
+        <span id="itemCount">0 sản phẩm</span>
+      </div>
+      
+      <div class="cart-content">
+        <div class="cart-items" id="cartItems">
+          <!-- Giỏ hàng trống -->
+          <div class="empty-cart" id="emptyCart">
+            <div class="empty-cart-icon">🛒</div>
+            <h3>Giỏ hàng của bạn đang trống</h3>
+            <a href="/" class="back-to-shop">Tiếp tục mua sắm</a>
+          </div>
+          
+          <!-- Các sản phẩm sẽ được thêm vào bằng JavaScript -->
+        </div>
+        
+        <div class="cart-summary" id="cartSummary" style="display: none;">
+          <h3 class="summary-title">Tóm tắt đơn hàng</h3>
+          
+          <div class="summary-row">
+            <span>Tạm tính:</span>
+            <span id="subtotal">0 ₫</span>
+          </div>
+          
+          <div class="summary-row">
+            <span>Phí vận chuyển:</span>
+            <span id="shipping">0 ₫</span>
+          </div>
+          
+          <div class="summary-row">
+            <span>Giảm giá:</span>
+            <span id="discount">0 ₫</span>
+          </div>
+          
+          <div class="summary-row summary-total">
+            <span>Tổng cộng:</span>
+            <span id="total">0 ₫</span>
+          </div>
+          
+          <button class="checkout-btn" id="checkoutBtn">Tiến hành thanh toán</button>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <footer>
+    <div class="container">
+      <p>&copy; 2023 Car Dealership. All rights reserved.</p>
+    </div>
+  </footer>
+
+  <script type="module">
+    import { cartApi, authApi, checkUnauthorized } from '/js/api.js';
+    
+    // DOM Elements
+    const cartItemsEl = document.getElementById('cartItems');
+    const emptyCartEl = document.getElementById('emptyCart');
+    const cartSummaryEl = document.getElementById('cartSummary');
+    const checkoutBtn = document.getElementById('checkoutBtn');
+    
+    // Hiển thị giỏ hàng
+    async function renderCart() {
+      try {
+        const cart = await cartApi.getCart();
+        
+        if (cart.items.length === 0) {
+          showEmptyCart();
+          return;
+        }
+        
+        // Hiển thị sản phẩm
+        renderCartItems(cart.items);
+        
+        // Hiển thị tổng tiền
+        renderSummary(cart);
+        
+        // Hiển thị số lượng trên header
+        updateCartCount(cart.items.reduce((sum, item) => sum + item.quantity, 0));
+        
+      } catch (error) {
+        console.error('Lỗi khi tải giỏ hàng:', error);
+        checkUnauthorized(error);
+      }
+    }
+    
+    function renderCartItems(items) {
+      emptyCartEl.style.display = 'none';
+      cartSummaryEl.style.display = 'block';
+      
+      cartItemsEl.innerHTML = items.map(item => `
+        <div class="cart-item" data-id="${item.car._id}">
+          <img src="${item.car.imageUrl || '/images/default-car.jpg'}" alt="${item.car.name}" class="cart-item-img">
+          <div class="cart-item-details">
+            <h4 class="cart-item-title">${item.car.name}</h4>
+            <div class="cart-item-price">${formatPrice(item.car.price)} ₫</div>
+          </div>
+          <div class="cart-item-actions">
+            <div class="quantity-control">
+              <button class="quantity-btn minus" onclick="updateQuantity('${item.car._id}', -1)">-</button>
+              <input type="number" class="quantity-input" value="${item.quantity}" min="1" 
+                onchange="updateQuantityInput('${item.car._id}', this.value)">
+              <button class="quantity-btn plus" onclick="updateQuantity('${item.car._id}', 1)">+</button>
+            </div>
+            <button class="remove-btn" onclick="removeItem('${item.car._id}')">Xóa</button>
+          </div>
+        </div>
+      `).join('');
+    }
+    
+    function renderSummary(cart) {
+      const subtotal = cart.items.reduce((sum, item) => sum + (item.car.price * item.quantity), 0);
+      const shipping = 0; // Có thể tính phí ship sau
+      const discount = 0; // Có thể áp dụng mã giảm giá
+      const total = subtotal + shipping - discount;
+      
+      document.getElementById('subtotal').textContent = formatPrice(subtotal) + ' ₫';
+      document.getElementById('shipping').textContent = formatPrice(shipping) + ' ₫';
+      document.getElementById('discount').textContent = formatPrice(discount) + ' ₫';
+      document.getElementById('total').textContent = formatPrice(total) + ' ₫';
+      document.getElementById('itemCount').textContent = `${cart.items.length} sản phẩm`;
+    }
+    
+    function showEmptyCart() {
+      emptyCartEl.style.display = 'block';
+      cartSummaryEl.style.display = 'none';
+      document.getElementById('itemCount').textContent = '0 sản phẩm';
+      updateCartCount(0);
+    }
+    
+    // Cập nhật số lượng giỏ hàng trên header
+    function updateCartCount(count) {
+      document.getElementById('headerCartCount').textContent = count;
+    }
+    
+    // Định dạng giá tiền
+    function formatPrice(price) {
+      return new Intl.NumberFormat('vi-VN').format(price);
+    }
+    
+    // Xử lý sự kiện
+    window.updateQuantity = async (carId, change) => {
+      try {
+        const newQuantity = parseInt(document.querySelector(`.cart-item[data-id="${carId}"] .quantity-input`).value) + change;
+        if (newQuantity < 1) return;
+        
+        await cartApi.updateItem(carId, newQuantity);
+        renderCart();
+      } catch (error) {
+        console.error('Lỗi khi cập nhật số lượng:', error);
+        checkUnauthorized(error);
+      }
+    };
+    
+    window.updateQuantityInput = async (carId, value) => {
+      try {
+        const quantity = parseInt(value);
+        if (isNaN(quantity) || quantity < 1) return;
+        
+        await cartApi.updateItem(carId, quantity);
+        renderCart();
+      } catch (error) {
+        console.error('Lỗi khi cập nhật số lượng:', error);
+        checkUnauthorized(error);
+      }
+    };
+    
+    window.removeItem = async (carId) => {
+      try {
+        await cartApi.removeItem(carId);
+        renderCart();
+      } catch (error) {
+        console.error('Lỗi khi xóa sản phẩm:', error);
+        checkUnauthorized(error);
+      }
+    };
+    
+    // Thanh toán
+    checkoutBtn.addEventListener('click', async () => {
+      try {
+        const order = await cartApi.checkout();
+        window.location.href = `/order.html?id=${order._id}`;
+      } catch (error) {
+        console.error('Lỗi khi thanh toán:', error);
+        alert('Lỗi khi thanh toán: ' + error.message);
+        checkUnauthorized(error);
+      }
+    });
+    
+    // Kiểm tra đăng nhập
+    async function checkAuth() {
+      try {
+        const profile = await authApi.getProfile();
+        document.getElementById('authSection').innerHTML = `
+          <span>Xin chào, ${profile.firstName}</span>
+          <a href="/logout" class="btn-logout">Đăng xuất</a>
+        `;
+      } catch (error) {
+        document.getElementById('authSection').innerHTML = `
+          <a href="/login.html" class="btn-login">Đăng nhập</a>
+          <a href="/register.html" class="btn-register">Đăng ký</a>
+        `;
+      }
+    }
+    
+    // Khởi động
+    document.addEventListener('DOMContentLoaded', () => {
+      checkAuth();
+      renderCart();
+    });
+  </script>
+</body>
+</html>

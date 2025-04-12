@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Car Dealership - Xe sang đẳng cấp</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="icon" href="/images/favicon.ico" type="image/x-icon">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+</head>
+<body>
+  <header>
+    <div class="container header-container">
+      <a href="/" class="logo"><h1>Car Dealership</h1></a>
+      <nav>
+        <ul id="nav-menu" class="nav-menu"></ul>
+      </nav>
+      <div class="header-right">
+        <a href="/cart.html" class="cart-link">
+          <span>🛒 Giỏ hàng</span>
+          <span class="cart-count" id="cart-count">0</span>
+        </a>
+        <div class="auth-buttons" id="auth-section">
+          <a href="/login.html" class="btn login-btn">Đăng nhập</a>
+          <a href="/register.html" class="btn register-btn">Đăng ký</a>
+          <a href="/logout" class="btn logout-btn" id="logout-btn" style="display: none;">Đăng xuất</a>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main class="container">
+    <section class="hero-banner">
+      <div class="hero-content">
+        <h2>Khám phá bộ sưu tập xe</h2>
+        <p>Đẳng cấp – Sang trọng – Thời thượng</p>
+      </div>
+    </section>
+
+    <section class="search-section">
+      <div class="search-container">
+        <input type="text" id="searchInput" placeholder="Tìm kiếm theo tên, hãng xe...">
+        <button id="searchBtn" class="btn-primary">🔍 Tìm kiếm</button>
+      </div>
+      <div class="filter-section">
+        <select id="categoryFilter">
+          <option value="">Tất cả danh mục</option>
+        </select>
+        <select id="priceFilter">
+          <option value="">Mức giá</option>
+          <option value="0-500">Dưới 500 triệu</option>
+          <option value="500-1000">500 - 1 tỷ</option>
+          <option value="1000-2000">1 - 2 tỷ</option>
+          <option value="2000">Trên 2 tỷ</option>
+        </select>
+      </div>
+    </section>
+
+    <section class="featured-cars">
+      <h2 class="section-title">Xe nổi bật</h2>
+      <div class="car-list" id="featuredCarList">
+        <div class="loading-spinner"></div>
+      </div>
+    </section>
+
+    <section class="all-cars">
+      <h2 class="section-title">Tất cả xe</h2>
+      <div class="car-list" id="carList">
+        <div class="loading-spinner"></div>
+      </div>
+      <div id="pagination" class="pagination"></div>
+    </section>
+
+    <section class="car-form admin-only" id="addCarFormSection" style="display: none;">
+      <h2>Thêm xe mới</h2>
+      <form id="addCarForm">
+        <div class="form-grid">
+          <div class="form-group">
+            <label for="make">Hãng xe:</label>
+            <input type="text" id="make" required>
+          </div>
+          <div class="form-group">
+            <label for="model">Model:</label>
+            <input type="text" id="model" required>
+          </div>
+          <div class="form-group">
+            <label for="year">Năm sản xuất:</label>
+            <input type="number" id="year" min="1990" max="2025" required>
+          </div>
+          <div class="form-group">
+            <label for="price">Giá (VND):</label>
+            <input type="number" id="price" min="0" required>
+          </div>
+          <div class="form-group">
+            <label for="image">Ảnh xe:</label>
+            <input type="file" id="image" accept="image/*">
+          </div>
+          <div class="form-group full-width">
+            <label for="description">Mô tả:</label>
+            <textarea id="description" rows="4"></textarea>
+          </div>
+        </div>
+        <button type="submit" class="btn-submit">Thêm xe</button>
+      </form>
+    </section>
+  </main>
+
+  <footer>
+    <div class="container footer-container">
+      <div class="footer-section">
+        <h3>Về chúng tôi</h3>
+        <p>Car Dealership - Nơi khởi đầu cho hành trình đẳng cấp</p>
+      </div>
+      <div class="footer-section">
+        <h3>Liên hệ</h3>
+        <p>Email: contact@cardealership.com</p>
+        <p>Điện thoại: 0123 456 789</p>
+      </div>
+      <div class="footer-section">
+        <h3>Đường dẫn nhanh</h3>
+        <ul id="footer-menu"></ul>
+      </div>
+    </div>
+    <div class="copyright">
+      &copy; 2025 Car Dealership. All rights reserved.
+    </div>
+  </footer>
+
+  <div class="modal" id="loginModal" style="display: none;">
+    <div class="modal-content"></div>
+  </div>
+
+  <!-- Scripts -->
+  <script src="/js/api.js" type="module"></script>
+  <script src="/js/auth.js" type="module"></script>
+  <script src="/js/main.js" type="module"></script>
+  <script src="/js/cart.js" type="module"></script>
+  
+  <script>
+    // Kiểm tra nếu người dùng đã đăng nhập
+    window.onload = function() {
+      const authSection = document.getElementById('auth-section');
+      const logoutBtn = document.getElementById('logout-btn');
+
+      // Kiểm tra cookie hoặc token
+      const token = document.cookie.split('; ').find(row => row.startsWith('token='));
+      
+      if (token) {
+        authSection.innerHTML = `<a href="/profile.html" class="btn">Trang cá nhân</a> <a href="/logout" class="btn logout-btn" id="logout-btn">Đăng xuất</a>`;
+      }
+      
+      // Xử lý đăng xuất
+      logoutBtn.addEventListener('click', function(event) {
+        event.preventDefault();
+        // Xóa cookie hoặc token
+        document.cookie = "token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+        authSection.innerHTML = `<a href="/login.html" class="btn login-btn">Đăng nhập</a><a href="/register.html" class="btn register-btn">Đăng ký</a>`;
+        window.location.href = "/"; // Điều hướng về trang chủ
+      });
+    };
+  </script>
+</body>
+</html>
