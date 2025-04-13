@@ -79,7 +79,7 @@
 <body>
   <div class="container">
     <h1 class="title">Đăng Nhập</h1>
-    <form class="login-form" action="/login" method="POST">
+    <form class="login-form">
       <div class="form-group">
         <label for="username">Tên Đăng Nhập</label>
         <input type="text" id="username" name="username" required />
@@ -91,5 +91,31 @@
       <button type="submit" class="btn-submit">Đăng Nhập</button>
     </form>
   </div>
+
+  <script type="module">
+    import api from './js/api.js';
+
+    document.querySelector('.login-form').addEventListener('submit', async function (e) {
+      e.preventDefault();
+
+      const username = document.getElementById('username').value;
+      const password = document.getElementById('password').value;
+
+      try {
+        const result = await api.auth.login({ username, password });
+        console.log('Login success:', result);
+
+        // ✅ Lưu user info vào localStorage
+        localStorage.setItem('user', JSON.stringify(result.user || result));
+
+        // ✅ Chuyển sang index.html
+        window.location.href = '/index.html';
+      } catch (error) {
+        if (!api.checkUnauthorized(error)) {
+          alert('Đăng nhập thất bại: ' + error.message);
+        }
+      }
+    });
+  </script>
 </body>
 </html>

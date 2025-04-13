@@ -88,4 +88,44 @@ document.addEventListener('DOMContentLoaded', () => {
   
     return query.join('&');
   }
+
+  import { getAllCategories } from './api.js';
+
+  document.addEventListener("DOMContentLoaded", async () => {
+  const categoryFilter = document.getElementById('categoryFilter');
+  const categories = await getAllCategories(); // API trả về danh sách danh mục
+
+  categories.forEach(cat => {
+    const option = document.createElement('option');
+    option.value = cat._id;
+    option.textContent = cat.name;
+    categoryFilter.appendChild(option);
+  });
+});
+
+import { getAllCars, getFeaturedCars } from './api.js';
+
+async function renderCars() {
+  const featuredList = document.getElementById("featuredCarList");
+  const allList = document.getElementById("carList");
+
+  const featured = await getFeaturedCars();
+  const allCars = await getAllCars();
+
+  featuredList.innerHTML = featured.map(renderCarCard).join('');
+  allList.innerHTML = allCars.map(renderCarCard).join('');
+}
+
+function renderCarCard(car) {
+  return `
+    <div class="car-card">
+      <img src="${car.imageUrl}" alt="${car.model}">
+      <h3>${car.make} ${car.model}</h3>
+      <p>Giá: ${car.price.toLocaleString()} VND</p>
+      <button class="btn" onclick="addToCart('${car._id}')">Thêm vào giỏ</button>
+    </div>
+  `;
+}
+
+
   

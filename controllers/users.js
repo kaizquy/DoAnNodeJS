@@ -21,24 +21,22 @@ module.exports = {
 
   CreateAnUser: async function (username, password, email, role) {
     try {
-      const roleObj = await roleSchema.findOne({ name: role });
-      if (!roleObj) {
-        throw new Error('Role không tồn tại');
+      let roleObj = await roleSchema.findOne({
+        name: role
+      })
+      if (roleObj) {
+        let newUser = new userSchema({
+          username: username,
+          password: password,
+          email: email,
+          role: roleObj._id
+        })
+        return await newUser.save();
+      } else {
+        throw new Error('role khong ton tai')
       }
-
-      // ✅ Mã hóa mật khẩu trước khi lưu
-      const hashedPassword = await bcrypt.hash(password, 10);
-
-      const newUser = new userSchema({
-        username,
-        password: hashedPassword,
-        email,
-        role: roleObj._id
-      });
-
-      return await newUser.save();
     } catch (error) {
-      throw new Error(error.message);
+      throw new Error(error.message)
     }
   },
 
@@ -60,17 +58,18 @@ module.exports = {
   },
 
   CheckLogin: async function (username, password) {
-    const user = await userSchema.findOne({ username });
+    let user = await userSchema.findOne({
+      username: username
+    });
     if (!user) {
-      throw new Error("Username hoặc password không đúng");
+      throw new Error("username khong dung")
+    } else {
+      if (bcrypt.compareSync(password, user.password)) {
+        return user._id
+      } else {
+        throw new Error("password khong dung")
+      }
     }
-
-    const isMatch = await bcrypt.compare(password, user.password);
-    if (!isMatch) {
-      throw new Error("Username hoặc password không đúng");
-    }
-
-    return user._id;
   },
 
   Change_Password: async function (user, oldpassword, newpassword) {

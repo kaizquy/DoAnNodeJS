@@ -52,10 +52,10 @@ module.exports = {
     LoginValidator: [
         body("username")
             .isLength(options.username)
-            .withMessage("Tên đăng nhập hoặc mật khẩu sai"),
+            .withMessage("Tên đăng nhập sai"),
 
         body("password")
             .isLength({ min: options.password.minLength })
-            .withMessage("Tên đăng nhập hoặc mật khẩu sai")
+            .withMessage("Mật khẩu sai")
     ]
 };
